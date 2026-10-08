@@ -224,3 +224,9 @@ tr.changed td { background: var(--paper-changed); }
 .card { overflow-x: auto; }
 .card table th, .card table td { padding: 7px 9px; }
 .card table td:first-child { min-width: 120px; }
+
+/* language toggle in NavBar */
+.lang { margin-left: auto; display: inline-flex; padding: 2px; gap: 2px; border: 1px solid #2B4170; border-radius: var(--radius-md); flex-shrink: 0; }
+.lang button { height: 24px; padding: 0 10px; border: none; border-radius: var(--radius-xs); background: transparent; color: var(--text-on-navy-muted); font-size: 12px; font-weight: 600; cursor: pointer; }
+.lang button.on { background: var(--gold-300); color: var(--navy-950); }
+.lang button:not(.on):hover { color: #fff; }

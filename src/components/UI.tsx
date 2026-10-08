@@ -1,4 +1,6 @@
+"use client";
 import type { ReactNode } from "react";
+import { useI18n } from "@/lib/i18n";
 
 export function PageHeader({ n, eyebrow, title, children }: { n: string; eyebrow: string; title: string; children?: ReactNode }) {
   return (
@@ -20,18 +22,22 @@ export function Section({ title, sub, children }: { title: string; sub?: string;
 }
 
 export function GradeBadge({ g }: { g: string }) {
-  return <span className={`grade ${g}`} title={`등급 ${g}`} aria-label={`등급 ${g}`}>{g}</span>;
+  const { t } = useI18n();
+  const label = t(`등급 ${g}`, `Grade ${g}`);
+  return <span className={`grade ${g}`} title={label} aria-label={label}>{g}</span>;
 }
 
 export function SourceBadge({ kind }: { kind: "official" | "news" | "unverified" }) {
-  const label = kind === "official" ? "공식" : kind === "news" ? "보도" : "? 미확인";
+  const { t } = useI18n();
+  const label = kind === "official" ? t("공식", "Official") : kind === "news" ? t("보도", "Press") : t("? 미확인", "? Unverified");
   return <span className={`src ${kind}`}>{label}</span>;
 }
 
 export function StatusBadge({ ok, children, sub }: { ok: boolean; children?: ReactNode; sub?: ReactNode }) {
+  const { t } = useI18n();
   return (
     <span className={`status ${ok ? "ok" : "bad"}`}>
-      {ok ? "✓" : "✕"} {children ?? (ok ? "정합" : "불일치")}
+      {ok ? "✓" : "✕"} {children ?? (ok ? t("정합", "Consistent") : t("불일치", "Inconsistent"))}
       {sub ? <span className="sub">{sub}</span> : null}
     </span>
   );
@@ -59,10 +65,11 @@ export function Segmented<T extends string | number>({ options, value, onChange,
 }
 
 export function QSection({ id, question, approach, children }: { id: string; question: string; approach: string; children: ReactNode }) {
+  const { t } = useI18n();
   return (
     <section className="qsec" id={id.toLowerCase()}>
       <div className="qh"><span className="chip-q">{id}</span><h3>{question}</h3></div>
-      <div className="how"><b>도구에서의 처리</b>{approach}</div>
+      <div className="how"><b>{t("도구에서의 처리", "How the tool handles it")}</b>{approach}</div>
       {children}
     </section>
   );

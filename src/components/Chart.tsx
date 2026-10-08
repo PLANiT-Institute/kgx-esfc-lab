@@ -1,6 +1,7 @@
 "use client";
 import { LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer, ReferenceLine } from "recharts";
 import type { RunOut } from "@/engine/model.ts";
+import { useI18n } from "@/lib/i18n";
 
 export interface SeriesSpec { key: string; label: string; color?: string; f?: (v: number, y: Record<string, number>) => number; ref?: boolean }
 
@@ -49,9 +50,10 @@ export function ChartCard({ title, unit, scen, ref, series, from = 2026, height 
     return row;
   });
   const hasRef = !diff && !!ref && series.some((s) => s.ref !== false);
+  const { t } = useI18n();
   return (
     <div className="chart">
-      <div className="h"><b>{title}</b><span>({diff ? "기준 대비 차이, " : ""}{unit})</span></div>
+      <div className="h"><b>{title}</b><span>({diff ? t("기준 대비 차이, ", "difference vs baseline, ") : ""}{unit})</span></div>
       <ResponsiveContainer width="100%" height={height}>
         <LineChart data={data} margin={{ top: 6, right: 8, left: 0, bottom: 0 }}>
           <CartesianGrid vertical={false} stroke="#EEE8DB" />
@@ -70,13 +72,14 @@ export function ChartCard({ title, unit, scen, ref, series, from = 2026, height 
       </ResponsiveContainer>
       <div className="legend">
         {series.map((s, i) => <span key={s.key}><i style={{ borderColor: s.color ?? SERIES_COLORS[i % SERIES_COLORS.length] }} />{s.label}</span>)}
-        {hasRef && <span className="key"><i /> 현재 <i className="dash" style={{ marginLeft: 6 }} /> 기준</span>}
+        {hasRef && <span className="key"><i /> {t("현재", "current")} <i className="dash" style={{ marginLeft: 6 }} /> {t("기준", "baseline")}</span>}
       </div>
     </div>
   );
 }
 
 export function KpiTile({ t, a, b, unit, digits = 1, scale = 1 }: { t: string; a: number; b?: number; unit: string; digits?: number; scale?: number }) {
+  const { t: tr } = useI18n();
   const av = a * scale;
   const bv = b !== undefined ? b * scale : undefined;
   const d = bv !== undefined ? av - bv : undefined;
@@ -92,7 +95,7 @@ export function KpiTile({ t, a, b, unit, digits = 1, scale = 1 }: { t: string; a
         <div className={`d ${cls}`}>
           <span className="a">{arrow}</span>
           <span className="x">{isZero ? (0).toFixed(dd) : `${d > 0 ? "+" : "−"}${Math.abs(d).toFixed(dd)}`}</span>
-          <span className="m">기준 대비</span>
+          <span className="m">{tr("기준 대비", "vs baseline")}</span>
         </div>
       )}
     </div>

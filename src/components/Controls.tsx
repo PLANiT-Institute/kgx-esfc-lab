@@ -3,6 +3,7 @@ import { useMemo, useState } from "react";
 import { PARAM_INDEX, DEFAULTS, type ParamDef } from "@/engine/params.ts";
 import { RULE_LABEL, DESIGN_LABEL, SUPPLY_LABEL, type MonRule, type Design, type Supply } from "@/engine/model.ts";
 import { useStore, REF_LABEL, type RefMode } from "./Store";
+import { useI18n } from "@/lib/i18n";
 import { GradeBadge, Segmented, StatusBadge } from "./UI";
 
 const PCT_UNITS = new Set(["비율", "/년"]);
@@ -18,11 +19,13 @@ export function fmtVal(v: number, p: ParamDef | { unit: string; step?: number })
   if (Math.abs(v) >= 1000) return v.toLocaleString("ko-KR", { maximumFractionDigits: 0 });
   return v.toFixed(decimals(step)).replace("-", "−");
 }
-const unitLabel = (p: ParamDef) => (PCT_UNITS.has(p.unit) ? "" : p.unit === "스위치" || p.unit === "선택" ? "" : p.unit);
+const unitLabel = (p: ParamDef, u: (x: string) => string) => (PCT_UNITS.has(p.unit) ? "" : p.unit === "스위치" || p.unit === "선택" ? "" : u(p.unit));
 
 export function ParamSlider({ id }: { id: string }) {
   const { over, setParam, resetParams } = useStore();
+  const i = useI18n();
   const p = PARAM_INDEX[id];
+  const on = i.t("켬", "On"), off = i.t("끔", "Off");
   if (!p) return null;
   const val = (over as Record<string, number>)[id] ?? DEFAULTS[id];
   const changed = val !== DEFAULTS[id];
@@ -33,33 +36,34 @@ export function ParamSlider({ id }: { id: string }) {
     <div className={`prm ${changed ? "changed" : ""}`}>
       <div className="l1">
         <span className="dot" />
-        <span className="lab" title={p.id}>{p.label}</span>
+        <span className="lab" title={p.id}>{i.pLabel(p)}</span>
         <GradeBadge g={p.grade} />
-        <span className="val">{isToggle ? (val ? "켬" : "끔") : isChoice ? String(val) : fmtVal(val, p)}</span>
-        <span className="unit">{unitLabel(p)}</span>
-        <button className="rst" title="기본값으로 되돌리기" disabled={!changed} onClick={() => resetParams([id])}>↺</button>
+        <span className="val">{isToggle ? (val ? on : off) : isChoice ? String(val) : fmtVal(val, p)}</span>
+        <span className="unit">{unitLabel(p, i.unit)}</span>
+        <button className="rst" title={i.t("기본값으로 되돌리기", "Reset to default")} disabled={!changed} onClick={() => resetParams([id])}>↺</button>
       </div>
       {isToggle ? (
-        <Segmented options={[{ v: 1, label: "켬" }, { v: 0, label: "끔" }]} value={val ? 1 : 0} onChange={(v) => setParam(id, v)} />
+        <Segmented options={[{ v: 1, label: on }, { v: 0, label: off }]} value={val ? 1 : 0} onChange={(v) => setParam(id, v)} />
       ) : (
         <div className="track">
           <span className="tick" style={{ left: `calc(7px + (100% - 14px) * ${frac})` }} />
-          <input type="range" min={p.min} max={p.max} step={p.step} value={val} aria-label={p.label}
+          <input type="range" min={p.min} max={p.max} step={p.step} value={val} aria-label={i.pLabel(p)}
             onChange={(e) => setParam(id, parseFloat(e.target.value))} />
         </div>
       )}
       <div className="l3">
-        <span>{p.note ?? p.source}</span>
-        {changed && <span className="def">기본 {isToggle ? (p.value ? "켬" : "끔") : isChoice ? p.value : fmtVal(p.value, p)}</span>}
+        <span>{i.pNote(p) ?? i.pSource(p)}</span>
+        {changed && <span className="def">{i.t("기본", "default")} {isToggle ? (p.value ? on : off) : isChoice ? p.value : fmtVal(p.value, p)}</span>}
       </div>
     </div>
   );
 }
 
-export interface PGroup { title: string; ids: string[] }
+export interface PGroup { title: string; en?: string; ids: string[] }
 
 export function ControlPanel({ groups, pickers = ["supply", "design", "rule"] }: { groups: PGroup[]; pickers?: ("rule" | "design" | "supply")[] }) {
   const s = useStore();
+  const i = useI18n();
   const [q, setQ] = useState("");
   const [onlyChanged, setOnlyChanged] = useState(false);
   const [closed, setClosed] = useState<Record<string, boolean>>(() => Object.fromEntries(groups.map((g, i) => [g.title, i > 0])));
@@ -74,10 +78,10 @@ export function ControlPanel({ groups, pickers = ["supply", "design", "rule"] }:
       const p = PARAM_INDEX[id];
       if (!p) return false;
       if (onlyChanged && !isChanged(id)) return false;
-      if (query && !`${p.id} ${p.label} ${p.source} ${p.note ?? ""}`.toLowerCase().includes(query)) return false;
+      if (query && !`${p.id} ${p.label} ${p.source} ${p.note ?? ""} ${i.pLabel(p)} ${i.pSource(p)}`.toLowerCase().includes(query)) return false;
       return true;
     }),
-  })), [groups, query, onlyChanged, s.over]); // eslint-disable-line react-hooks/exhaustive-deps
+  })), [groups, query, onlyChanged, s.over, i.lang]); // eslint-disable-line react-hooks/exhaustive-deps
   const forceOpen = query !== "" || onlyChanged;
   const allClosed = groups.every((g) => closed[g.title]);
   const anyShown = filtered.some((g) => g.shown.length > 0);
@@ -86,35 +90,35 @@ export function ControlPanel({ groups, pickers = ["supply", "design", "rule"] }:
     <aside className="panel">
       <div className="top">
         {pickers.includes("supply") && (
-          <label className="f"><span>메가프로젝트 공급 시나리오</span>
+          <label className="f"><span>{i.t("메가프로젝트 공급 시나리오", "Megaproject supply scenario")}</span>
             <select className="select" value={s.supply} onChange={(e) => s.setSupply(e.target.value as Supply)}>
-              {Object.entries(SUPPLY_LABEL).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+              {Object.keys(SUPPLY_LABEL).map((k) => <option key={k} value={k}>{i.supply(k)}</option>)}
             </select></label>
         )}
         {pickers.includes("design") && (
-          <label className="f"><span>전력시장·요금 설계</span>
+          <label className="f"><span>{i.t("전력시장·요금 설계", "Power market · tariff design")}</span>
             <select className="select" value={s.design} onChange={(e) => s.setDesign(e.target.value as Design)}>
-              {Object.entries(DESIGN_LABEL).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+              {Object.keys(DESIGN_LABEL).map((k) => <option key={k} value={k}>{i.design(k)}</option>)}
             </select></label>
         )}
         {pickers.includes("rule") && (
-          <label className="f"><span>한국은행 반응함수</span>
+          <label className="f"><span>{i.t("한국은행 반응함수", "Bank of Korea reaction function")}</span>
             <select className="select" value={s.rule} onChange={(e) => s.setRule(e.target.value as MonRule)}>
-              {Object.entries(RULE_LABEL).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+              {Object.keys(RULE_LABEL).map((k) => <option key={k} value={k}>{i.rule(k)}</option>)}
             </select></label>
         )}
       </div>
       <div className="tools">
         <div className="search">
           <span className="ic">⌕</span>
-          <input className="input" value={q} onChange={(e) => setQ(e.target.value)} placeholder="파라미터 검색 (이름·id·출처)" />
-          {q && <button className="x" onClick={() => setQ("")} aria-label="검색 지우기">×</button>}
+          <input className="input" value={q} onChange={(e) => setQ(e.target.value)} placeholder={i.t("파라미터 검색 (이름·id·출처)", "Search parameters (name · id · source)")} />
+          {q && <button className="x" onClick={() => setQ("")} aria-label={i.t("검색 지우기", "Clear search")}>×</button>}
         </div>
         <div className="row">
-          <Segmented label="표시" value={onlyChanged ? "c" : "a"} onChange={(v) => setOnlyChanged(v === "c")}
-            options={[{ v: "a", label: `전체 ${allIds.length}` }, { v: "c", label: `변경됨 ${changedN}` }]} />
+          <Segmented label={i.t("표시", "Show")} value={onlyChanged ? "c" : "a"} onChange={(v) => setOnlyChanged(v === "c")}
+            options={[{ v: "a", label: `${i.t("전체", "All")} ${allIds.length}` }, { v: "c", label: `${i.t("변경됨", "Changed")} ${changedN}` }]} />
           <button className="linkbtn" onClick={() => setClosed(Object.fromEntries(groups.map((g) => [g.title, !allClosed])))}>
-            {allClosed ? "모두 펼치기" : "모두 접기"}
+            {allClosed ? i.t("모두 펼치기", "Expand all") : i.t("모두 접기", "Collapse all")}
           </button>
         </div>
       </div>
@@ -127,7 +131,7 @@ export function ControlPanel({ groups, pickers = ["supply", "design", "rule"] }:
             <div className="grp" key={g.title}>
               <button onClick={() => setClosed((c) => ({ ...c, [g.title]: !c[g.title] }))} aria-expanded={open}>
                 <span className="chev">{open ? "▼" : "▶"}</span>
-                <span className="name">{g.title}</span>
+                <span className="name">{i.t(g.title, g.en ?? g.title)}</span>
                 {n > 0 && <span className="chg">● {n}</span>}
                 <span className="cnt">{g.ids.length}</span>
               </button>
@@ -135,12 +139,12 @@ export function ControlPanel({ groups, pickers = ["supply", "design", "rule"] }:
             </div>
           );
         })}
-        {!anyShown && <div className="empty">일치하는 파라미터가 없다.</div>}
+        {!anyShown && <div className="empty">{i.t("일치하는 파라미터가 없다.", "No matching parameters.")}</div>}
       </div>
       {changedN > 0 && (
         <div className="foot">
-          <b>● {changedN}개 변경됨</b>
-          <button onClick={() => s.resetParams(allIds)}>모두 되돌리기</button>
+          <b>● {i.t(`${changedN}개 변경됨`, `${changedN} changed`)}</b>
+          <button onClick={() => s.resetParams(allIds)}>{i.t("모두 되돌리기", "Reset all")}</button>
         </div>
       )}
     </aside>
@@ -149,17 +153,18 @@ export function ControlPanel({ groups, pickers = ["supply", "design", "rule"] }:
 
 export function ComparisonBar() {
   const s = useStore();
+  const i = useI18n();
   const ok = s.scen.maxCheck < 1e-6;
   return (
     <div className="cbar">
-      <span className="lbl"><i />비교 기준</span>
+      <span className="lbl"><i />{i.t("비교 기준", "Baseline")}</span>
       <select className="select" style={{ minWidth: 220 }} value={s.refMode} onChange={(e) => s.setRefMode(e.target.value as RefMode)}>
-        {Object.entries(REF_LABEL).map(([k, v]) => <option key={k} value={k} disabled={k === "pinned" && !s.pinned}>{v}</option>)}
+        {Object.keys(REF_LABEL).map((k) => <option key={k} value={k} disabled={k === "pinned" && !s.pinned}>{i.ref(k)}</option>)}
       </select>
-      <button className="btn" onClick={s.pin}>현재 설정을 A안으로 고정</button>
-      <button className="btn" onClick={() => s.resetParams()}>파라미터 전체 초기화</button>
-      {s.pinned && s.refMode === "pinned" && <span className="pin">A안 고정됨 · {s.pinnedAt}</span>}
-      <StatusBadge ok={ok} sub={`최대 잔차 ${s.scen.maxCheck.toExponential(1)} 조원`}>{ok ? "SFC 검사 통과" : "SFC 검사 실패"}</StatusBadge>
+      <button className="btn" onClick={s.pin}>{i.t("현재 설정을 A안으로 고정", "Pin current settings as case A")}</button>
+      <button className="btn" onClick={() => s.resetParams()}>{i.t("파라미터 전체 초기화", "Reset all parameters")}</button>
+      {s.pinned && s.refMode === "pinned" && <span className="pin">{i.t("A안 고정됨", "Case A pinned")} · {(s.pinnedAt ?? "").replace("변경", i.t("변경", "changed")).replace("개", i.t("개", ""))}</span>}
+      <StatusBadge ok={ok} sub={i.t(`최대 잔차 ${s.scen.maxCheck.toExponential(1)} 조원`, `max residual ${s.scen.maxCheck.toExponential(1)} KRW tn`)}>{ok ? i.t("SFC 검사 통과", "SFC checks pass") : i.t("SFC 검사 실패", "SFC checks fail")}</StatusBadge>
     </div>
   );
 }
