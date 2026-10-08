@@ -13,7 +13,7 @@ export const REF_LABEL: Record<RefMode, string> = {
 
 interface Store {
   rule: MonRule; design: Design; supply: Supply; over: Partial<Params>;
-  refMode: RefMode; pinned: Settings | null;
+  refMode: RefMode; pinned: Settings | null; pinnedAt: string | null;
   setRule: (r: MonRule) => void; setDesign: (d: Design) => void; setSupply: (s: Supply) => void;
   setParam: (k: string, v: number) => void; resetParams: (keys?: string[]) => void;
   setRefMode: (m: RefMode) => void; pin: () => void;
@@ -30,6 +30,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [over, setOver] = useState<Partial<Params>>({});
   const [refMode, setRefMode] = useState<RefMode>("noMP");
   const [pinned, setPinned] = useState<Settings | null>(null);
+  const [pinnedAt, setPinnedAt] = useState<string | null>(null);
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
@@ -43,13 +44,14 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         if (s.over) setOver(s.over);
         if (s.refMode) setRefMode(s.refMode);
         if (s.pinned) setPinned(s.pinned);
+        if (s.pinnedAt) setPinnedAt(s.pinnedAt);
       }
     } catch { /* ignore corrupted storage */ }
     setLoaded(true);
   }, []);
   useEffect(() => {
-    if (loaded) localStorage.setItem(KEY, JSON.stringify({ rule, design, supply, over, refMode, pinned }));
-  }, [loaded, rule, design, supply, over, refMode, pinned]);
+    if (loaded) localStorage.setItem(KEY, JSON.stringify({ rule, design, supply, over, refMode, pinned, pinnedAt }));
+  }, [loaded, rule, design, supply, over, refMode, pinned, pinnedAt]);
 
   const settings: Settings = useMemo(() => ({ rule, design, supply, params: over }), [rule, design, supply, over]);
   const refSettings: Settings = useMemo(() => {
@@ -63,7 +65,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const ref = useMemo(() => safeRun(refSettings), [refSettings]);
 
   const store: Store = {
-    rule, design, supply, over, refMode, pinned,
+    rule, design, supply, over, refMode, pinned, pinnedAt,
     setRule, setDesign, setSupply,
     setParam: (k, v) => setOver((o) => ({ ...o, [k]: v })),
     resetParams: (keys) => setOver((o) => {
@@ -73,7 +75,12 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       return n;
     }),
     setRefMode,
-    pin: () => { setPinned(settings); setRefMode("pinned"); },
+    pin: () => {
+      setPinned(settings);
+      const d = new Date();
+      setPinnedAt(`${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")} · 변경 ${Object.keys(over).length}개`);
+      setRefMode("pinned");
+    },
     settings, refSettings, scen, ref,
   };
   return <Ctx.Provider value={store}>{children}</Ctx.Provider>;

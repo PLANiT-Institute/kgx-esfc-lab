@@ -13,15 +13,18 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ko">
+      <head>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+      </head>
       <body>
-        <header className="top">
+        <header className="topbar">
           <div className="in">
-            <div className="brand">K-GX E-SFC Policy Lab<small>PLANiT Institute · Track B 연구용 · v0.1 실험판</small></div>
+            <div className="brand"><b>K-GX E-SFC Policy Lab</b><span>PLANiT Institute · Track B 연구용 · v0.1 실험판</span></div>
             <Nav />
           </div>
         </header>
         <StoreProvider>
-          <main>{children}</main>
+          <main className="page">{children}</main>
         </StoreProvider>
       </body>
     </html>

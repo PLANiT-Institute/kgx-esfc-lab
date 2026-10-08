@@ -1,26 +1,31 @@
 "use client";
 import { useDeferredValue, useMemo } from "react";
 import { useStore } from "@/components/Store";
-import { Group, RefPicker, ScenarioPickers } from "@/components/Controls";
-import { Chart, Kpi } from "@/components/Chart";
+import { ControlPanel, ComparisonBar, type PGroup } from "@/components/Controls";
+import { ChartCard as Chart, KpiTile as Kpi } from "@/components/Chart";
+import { PageHeader, QSection, StatusBadge } from "@/components/UI";
 import { run, at, cum, incidence, DESIGN_LABEL, RULE_LABEL, SUPPLY_LABEL, type Settings, type Design, type MonRule, type Supply, type RunOut } from "@/engine/model.ts";
 import { ISSUES } from "@/lib/content";
 
 const pct = (v: number) => v * 100;
-const f1 = (v: number) => (Number.isFinite(v) ? v.toFixed(1) : "–");
-const f2 = (v: number) => (Number.isFinite(v) ? v.toFixed(2) : "–");
+const f1 = (v: number) => (Number.isFinite(v) ? v.toFixed(1).replace("-", "−") : "–");
+const f2 = (v: number) => (Number.isFinite(v) ? v.toFixed(2).replace("-", "−") : "–");
 
 function noMP(s: Settings): Settings { return { ...s, params: { ...(s.params ?? {}), mp_on: 0 } }; }
 
-function QHead({ id }: { id: string }) {
-  const q = ISSUES.find((x) => x.id === id)!;
-  return (
-    <div style={{ marginBottom: 8 }}>
-      <h2 style={{ marginBottom: 4 }}>{q.id}. {q.q}</h2>
-      <div className="small"><b>도구에서의 처리</b>: {q.approach}</div>
-    </div>
-  );
-}
+const GROUPS: PGroup[] = [
+  { title: "메가프로젝트 부하", ids: ["mp_on", "LD_2029", "LD_2035", "LD_semi", "LD_real", "LD_lf", "dc_rev"] },
+  { title: "요금·귀착 (Q1)", ids: ["sigma", "rho_t", "lag_t", "step_t", "ratchet", "reg_tariff_on", "reg_relief", "reg_fund"] },
+  { title: "K-ETS·감축 경로 (Q1·Q5)", ids: ["ets_mode", "gap_route", "kau2026", "kau_g", "kau_ceiling", "kau_slope", "auction2030", "itmo_usd", "itmo_cap", "mac_dom_usd"] },
+  { title: "K-GX 재정 200조 (Q2)", ids: ["kgx_on", "kgx_budget", "al_grant", "al_psgrant", "al_rnd", "al_ptc", "al_isub", "al_inj", "al_pubinv", "hybrid", "green_bond", "fiscal_rule"] },
+  { title: "K-GX 정책금융·민간 (Q2)", ids: ["kgx_pf", "pf_loan", "pf_guar", "pf_ps", "pf_spread", "pf_el", "guar_el", "kgx_priv"] },
+  { title: "추가성 가정 (Track A2)", ids: ["add_grant", "add_ptc", "add_pf", "add_guar", "add_priv"] },
+  { title: "시장설계·민간투자 (Q3)", ids: ["rp_cfd", "rp_pool", "re_eps", "mo_beta", "kgx_re100", "endo_mix", "b0_mix", "b1_mix", "mu_mprice", "net_charge"] },
+  { title: "간헐성 (GMMET형)", ids: ["int_on", "fi_base", "fi_slope", "sto_ratio", "sto_slope"] },
+  { title: "LNG·환율 물가 경로 (Q4)", ids: ["gas_shock", "fx_shock", "shock_y0", "shock_y1", "gas_price", "th_fu", "io_fu", "th_fx", "w_el", "io_el"] },
+  { title: "발전기술 비용", ids: ["cx_solar", "cx_on", "cx_off", "cx_gas", "cx_nuc", "cx_sto", "cx_grid", "w0", "mimp_solar", "mimp_wind", "mimp_gas"] },
+];
+const Q = (id: string) => ISSUES.find((x) => x.id === id)!;
 
 export default function Alignment() {
   const { scen, ref, settings } = useStore();
@@ -62,46 +67,40 @@ export default function Alignment() {
 
   return (
     <>
-      <h1>전력 × K-GX 정합 — Track B 방법론 쟁점(Q1–Q5) 실험</h1>
-      <p className="lead">
-        Track B 방법론의 다섯 가지 쟁점과 2026-10-07 발표된 K-GX 전략(재정 200조·기후금융 790조·민간 220조, 2026–2035)을
-        같은 회계 안에서 다룬다. 기준(점선·차이)은 기본적으로 '같은 설정에서 메가프로젝트 없음'이다. 모든 수치는 등급 C 보정 위의 방향·상대 크기로 읽는다.
-      </p>
-      <RefPicker />
+      <PageHeader n="04" eyebrow="전력 × K-GX 정합" title="전력 × K-GX 정합 — Track B 방법론 쟁점(Q1–Q5) 실험">
+        Track B 방법론의 다섯 가지 쟁점과 2026-10-07 발표된 K-GX 전략(재정 200조·기후금융 790조·민간 220조, 2026–2035)을 같은 회계 안에서 다룬다.
+        기준(점선·차이)은 기본적으로 &apos;같은 설정에서 메가프로젝트 없음&apos;이다. 모든 수치는 등급 C 보정 위의 방향·상대 크기로 읽는다.
+      </PageHeader>
+      <ComparisonBar />
       <div className="layout">
-        <aside className="controls card">
-          <ScenarioPickers />
-          <Group open title="메가프로젝트 부하" ids={["mp_on", "LD_2029", "LD_2035", "LD_semi", "LD_real", "LD_lf"]} />
-          <Group title="요금·귀착 (Q1)" ids={["sigma", "rho_t", "lag_t", "step_t", "ratchet", "reg_tariff_on", "reg_relief", "reg_fund"]} />
-          <Group title="K-ETS·감축 경로 (Q1·Q5)" ids={["ets_mode", "gap_route", "kau2026", "kau_g", "kau_ceiling", "kau_slope", "auction2030", "itmo_usd", "itmo_cap", "mac_dom_usd"]} />
-          <Group title="K-GX 재정 200조 (Q2)" ids={["kgx_on", "kgx_budget", "al_grant", "al_psgrant", "al_rnd", "al_ptc", "al_isub", "al_inj", "al_pubinv", "hybrid", "green_bond", "fiscal_rule"]} />
-          <Group title="K-GX 정책금융 790조·민간 220조 (Q2)" ids={["kgx_pf", "pf_loan", "pf_guar", "pf_ps", "pf_spread", "pf_el", "guar_el", "kgx_priv"]} />
-          <Group title="추가성 가정 (Track A2 연결)" ids={["add_grant", "add_ptc", "add_pf", "add_guar", "add_priv"]} />
-          <Group title="시장설계·민간투자 반응 (Q3)" ids={["rp_cfd", "rp_pool", "re_eps", "mo_beta", "kgx_re100", "endo_mix", "b0_mix", "b1_mix", "mu_mprice", "net_charge"]} />
-          <Group title="간헐성 (GMMET형)" ids={["int_on", "fi_base", "fi_slope", "sto_ratio", "sto_slope"]} />
-          <Group title="LNG·환율 물가 경로 (Q4)" ids={["gas_shock", "fx_shock", "shock_y0", "shock_y1", "gas_price", "th_fu", "io_fu", "th_fx", "w_el", "io_el"]} />
-          <Group title="발전기술 비용" ids={["cx_solar", "cx_on", "cx_off", "cx_gas", "cx_nuc", "cx_sto", "cx_grid", "w0", "mimp_solar", "mimp_wind", "mimp_gas"]} />
-        </aside>
-        <section>
+        <ControlPanel groups={GROUPS} />
+        <div style={{ display: "flex", flexDirection: "column", gap: 24, minWidth: 0 }}>
           <div className="card">
-            <h3>정합성 점검표 — {SUPPLY_LABEL[settings.supply]} · {DESIGN_LABEL[settings.design]} · {RULE_LABEL[settings.rule]}</h3>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8, flexWrap: "wrap" }}>
+              <h3 style={{ margin: 0 }}>정합성 점검표</h3>
+              <span className="small muted">{SUPPLY_LABEL[settings.supply]} · {DESIGN_LABEL[settings.design]} · {RULE_LABEL[settings.rule]}</span>
+              <span style={{ marginLeft: "auto", display: "flex", gap: 6 }}>
+                <StatusBadge ok>정합 {score.filter((x) => x.ok).length}</StatusBadge>
+                <StatusBadge ok={false}>불일치 {score.filter((x) => !x.ok).length}</StatusBadge>
+              </span>
+            </div>
             <table>
               <thead><tr><th>지표</th><th className="num">값</th><th>단위</th><th>판정</th><th>읽는 법</th></tr></thead>
               <tbody>{score.map((s) => (
-                <tr key={s.k}><td>{s.k}</td><td className="num">{f2(s.v)}</td><td>{s.unit}</td><td className={`check ${s.ok ? "ok" : "bad"}`}>{s.ok ? "정합" : "불일치"}</td><td className="small muted">{s.note}</td></tr>
+                <tr key={s.k}><td>{s.k}</td><td className="num">{f2(s.v)}</td><td>{s.unit}</td><td><StatusBadge ok={s.ok} /></td><td className="small muted">{s.note}</td></tr>
               ))}</tbody>
             </table>
           </div>
 
           {/* ---------------- Q1 */}
-          <QHead id="Q1" />
-          <div className="grid g4">
+          <QSection id="Q1" question={Q("Q1").q} approach={Q("Q1").approach}>
+          <div className="kpis auto">
             <Kpi t="증분 부하 2035" a={at(scen, Y, "incLoad")} unit="TWh" />
             <Kpi t="직접 추가배출 2035" a={at(scen, Y, "dE")} unit="Mt" />
             <Kpi t="증분 자원비용 2035 (사회적 비용)" a={at(scen, Y, "sc_resource")} unit="조원/년" />
             <Kpi t="KAU 2035" a={at(scen, Y, "kau") / 1000} b={at(ref, Y, "kau") / 1000} unit="천원/t" />
           </div>
-          <div className="grid g2" style={{ marginTop: 12 }}>
+          <div className="grid g2">
             <div className="card">
               <h3>귀착: 누가 증분 비용을 내는가 (메가프로젝트 없음 대비, 조원)</h3>
               <table>
@@ -125,7 +124,8 @@ export default function Alignment() {
           </div>
 
           {/* ---------------- Q2 */}
-          <QHead id="Q2" />
+          </QSection>
+          <QSection id="Q2" question={Q("Q2").q} approach={Q("Q2").approach}>
           <div className="grid g2">
             <div className="card">
               <h3>K-GX 봉투와 메가프로젝트 증액 소요 (2026–2035 누적, 조원)</h3>
@@ -151,7 +151,7 @@ export default function Alignment() {
             <Chart title="공공부채 경계 D1/D2/D3" unit="% GDP" scen={scen} ref={ref} series={[
               { key: "debtRatio", label: "D1 국채", f: pct }, { key: "D2", label: "D2 +정책금융·보증EL", f: pct }, { key: "D3", label: "D3 +전력부문", f: pct },
             ]} />
-            <div className="card">
+            <div className="card" style={{ gridColumn: "1 / -1" }}>
               <h3>공급 시나리오별 비교 (각 시나리오의 '메가프로젝트 없음' 대비, {Y})</h3>
               <table>
                 <thead><tr><th>시나리오</th><th className="num">직접배출 Mt</th><th className="num">자원비용 누적 26–35</th><th className="num">직접 재정소요 26–35</th><th className="num">ΔD1 pp</th><th className="num">Δ전력부채 조원</th></tr></thead>
@@ -163,9 +163,10 @@ export default function Alignment() {
           </div>
 
           {/* ---------------- Q3 */}
-          <QHead id="Q3" />
+          </QSection>
+          <QSection id="Q3" question={Q("Q3").q} approach={Q("Q3").approach}>
           <div className="grid g2">
-            <div className="card">
+            <div className="card" style={{ gridColumn: "1 / -1" }}>
               <h3>시장·요금 설계별 비교 ({Y}, 각 설계의 '메가프로젝트 없음' 대비)</h3>
               <table>
                 <thead><tr><th>설계</th><th className="num">재생 GW</th><th className="num">재생 WACC %</th><th className="num">Δ요금 원/kWh</th><th className="num">Δ전력부채 조원</th><th className="num">ΔCPI 최대 pp</th></tr></thead>
@@ -187,13 +188,14 @@ export default function Alignment() {
           </div>
 
           {/* ---------------- Q4 */}
-          <QHead id="Q4" />
+          </QSection>
+          <QSection id="Q4" question={Q("Q4").q} approach={Q("Q4").approach}>
           <div className="grid g2">
             <Chart title="물가: 헤드라인·근원·전기요금" unit="%/년" scen={scen} ref={ref} series={[
               { key: "piH", label: "헤드라인", f: pct }, { key: "piC", label: "근원", f: pct }, { key: "piElec", label: "전기요금", f: pct },
             ]} />
             <Chart title="정책금리" unit="%" scen={scen} ref={ref} series={[{ key: "i", label: "정책금리", f: pct }]} />
-            <div className="card">
+            <div className="card" style={{ gridColumn: "1 / -1" }}>
               <h3>반응함수별 비교 (각 규칙의 '메가프로젝트 없음' 대비)</h3>
               <table>
                 <thead><tr><th>규칙</th><th className="num">ΔCPI 최대 pp</th><th className="num">Δ금리 최대 bp</th><th className="num">Δ재생 GW 2035</th><th className="num">ΔD1 2035 pp</th></tr></thead>
@@ -209,12 +211,13 @@ export default function Alignment() {
           </div>
 
           {/* ---------------- Q5 */}
-          <QHead id="Q5" />
+          </QSection>
+          <QSection id="Q5" question={Q("Q5").q} approach={Q("Q5").approach}>
           <div className="grid g2">
             <Chart title="KAU 가격·유상할당 비중" unit="천원/t, %" scen={scen} ref={ref} series={[
               { key: "kau", label: "KAU(천원/t)", f: (v) => v / 1000 }, { key: "auction", label: "발전 유상할당 %", f: pct, ref: false },
             ]} />
-            <div className="card">
+            <div className="card" style={{ gridColumn: "1 / -1" }}>
               <h3>K-ETS 상한 반응별 비교 (2026–35 누적, '메가프로젝트 없음' 대비)</h3>
               <table>
                 <thead><tr><th>상한</th><th className="num">KAU 2035 천원</th><th className="num">워터베드 감축 Mt(2035)</th><th className="num">직접 재정소요</th><th className="num">ETS 기업 순부담</th><th className="num">전력 배출권 비용</th></tr></thead>
@@ -225,7 +228,8 @@ export default function Alignment() {
               <p className="small muted">경직 상한에서는 추가 배출이 KAU 상승과 타 업체 감축으로 흡수되어 예산 부담이 거의 없다(K-MSR 상한을 넘는 누출분만 국가 몫). 행정요금 아래에서 늘어난 배출권 비용은 소비자보다 전력부문에 먼저 쌓인다(Q1의 '한전 다리').</p>
             </div>
           </div>
-        </section>
+          </QSection>
+        </div>
       </div>
     </>
   );

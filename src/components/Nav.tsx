@@ -7,7 +7,7 @@ const LINKS = [
 export function Nav() {
   const path = usePathname();
   return (
-    <nav>
+    <nav className="tabs">
       {LINKS.map(([href, label]) => <Link key={href} href={href} className={path === href ? "on" : ""}>{label}</Link>)}
     </nav>
   );
