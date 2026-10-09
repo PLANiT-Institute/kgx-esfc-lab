@@ -1,4 +1,4 @@
-// Study content: reference models, implementation map, Track B methodological issues (Q1-Q5), K-GX facts.
+// Study content: reference models, implementation map, methodological issues (Q1-Q5), K-GX facts.
 // Equation numbers/pages refer to the original documents; "구현" = what this tool actually codes (simplified, annual).
 
 export interface Eq { id: string; tex: string; ref: string; impl: string }

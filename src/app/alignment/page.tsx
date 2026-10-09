@@ -79,9 +79,9 @@ export default function Alignment() {
 
   return (
     <>
-      <PageHeader n="04" eyebrow={t("전력 × K-GX 정합", "Power × K-GX")} title={t("전력 × K-GX 정합 — Track B 방법론 쟁점(Q1–Q5) 실험", "Power × K-GX alignment — experiments on Track B methodology issues (Q1–Q5)")}>
-        {t("Track B 방법론의 다섯 가지 쟁점과 2026-10-07 발표된 K-GX 전략(재정 200조·기후금융 790조·민간 220조, 2026–2035)을 같은 회계 안에서 다룬다. 기준(점선·차이)은 기본적으로 '같은 설정에서 메가프로젝트 없음'이다. 모든 수치는 등급 C 보정 위의 방향·상대 크기로 읽는다.",
-          "Handles the five Track B methodology issues and the K-GX strategy announced on 2026-10-07 (budget KRW 200 tn · climate finance KRW 790 tn · private KRW 220 tn, 2026–2035) within one set of accounts. The baseline (dashed lines, differences) is 'same settings without the megaprojects' by default. Read all figures as directions and relative sizes on a grade-C calibration.")}
+      <PageHeader n="04" eyebrow={t("전력 × K-GX 정합", "Power × K-GX")} title={t("전력 × K-GX 정합 — 방법론 쟁점(Q1–Q5) 실험", "Power × K-GX alignment — experiments on the methodology issues (Q1–Q5)")}>
+        {t("이 연구 방법론의 다섯 가지 쟁점과 2026-10-07 발표된 K-GX 전략(재정 200조·기후금융 790조·민간 220조, 2026–2035)을 같은 회계 안에서 다룬다. 기준(점선·차이)은 기본적으로 '같은 설정에서 메가프로젝트 없음'이다. 모든 수치는 등급 C 보정 위의 방향·상대 크기로 읽는다.",
+          "Handles the five methodology issues of this research and the K-GX strategy announced on 2026-10-07 (budget KRW 200 tn · climate finance KRW 790 tn · private KRW 220 tn, 2026–2035) within one set of accounts. The baseline (dashed lines, differences) is 'same settings without the megaprojects' by default. Read all figures as directions and relative sizes on a grade-C calibration.")}
       </PageHeader>
       <ComparisonBar />
       <div className="layout">

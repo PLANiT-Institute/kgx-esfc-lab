@@ -14,8 +14,8 @@ export default function Home() {
   return (
     <>
       <PageHeader n="01" eyebrow={t("개요", "Overview")} title="K-GX E-SFC Policy Lab">
-        {t("Track B(\"메가프로젝트와 K-GX를 위한 기후정합 재정정책\") 연구의 정책 질문 두 가지를 하나의 스톡-플로우 정합 회계 안에서 실험하는 도구다. (1) 27GW급 메가프로젝트 부하가 얼마나 추가 배출을 만들고, K-GX가 그것을 상쇄하려면 재정 노력이 얼마나 더 필요한가. (2) 전환투자가 금리에 얼마나 민감한가. 모형 선택은 미확정이며, 이 도구는 방법론 학습과 설계 실험을 위한 샌드박스다.",
-          "A tool for testing the two policy questions of Track B (\"Climate-consistent fiscal policy for the megaprojects and K-GX\") inside one stock-flow consistent set of accounts. (1) How much extra emissions does the ~27 GW megaproject load create, and how much more fiscal effort does K-GX need to offset them? (2) How sensitive is transition investment to interest rates? Model choice is not settled; this tool is a sandbox for learning the methodology and testing design choices.")}
+        {t("메가프로젝트와 K-GX의 재정 문제를 다루는 PLANiT 연구의 정책 질문 두 가지를 하나의 스톡-플로우 정합 회계 안에서 실험하는 도구다. (1) 27GW급 메가프로젝트 부하가 얼마나 추가 배출을 만들고, K-GX가 그것을 상쇄하려면 재정 노력이 얼마나 더 필요한가. (2) 전환투자가 금리에 얼마나 민감한가. 모형 선택은 미확정이며, 이 도구는 방법론 학습과 설계 실험을 위한 샌드박스다.",
+          "A tool for testing the two policy questions of PLANiT's research on the fiscal side of the megaprojects and K-GX inside one stock-flow consistent set of accounts. (1) How much extra emissions does the ~27 GW megaproject load create, and how much more fiscal effort does K-GX need to offset them? (2) How sensitive is transition investment to interest rates? Model choice is not settled; this tool is a sandbox for learning the methodology and testing design choices.")}
       </PageHeader>
 
       <div className="grid g3">

@@ -3,7 +3,7 @@
 // lineage = which reference model the equation using this parameter follows
 //   DEF = DEFINE-UK v1.1 manual (Sep 2026), SFF = Dafermos, Nikolaidi & Galanis (2017),
 //   MFM = World Bank MFMod technical description (2019), MFE = Electricity Transition in MFMod (2024),
-//   GMM = IMF GMMET (WP/2023/269), L1 = PLANiT Track B Layer-1 ledger, KGX = K-GX strategy (2026-10-07).
+//   GMM = IMF GMMET (WP/2023/269), L1 = PLANiT Layer-1 ledger, KGX = K-GX strategy (2026-10-07).
 
 export type Grade = "A" | "B" | "C";
 export type Lineage = "DEF" | "SFF" | "MFM" | "MFE" | "GMM" | "L1" | "KGX" | "OWN";

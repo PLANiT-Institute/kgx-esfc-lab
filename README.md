@@ -1,6 +1,6 @@
 # K-GX E-SFC Policy Lab
 
-Track B 연구("Climate-consistent fiscal policy for the megaprojects and K-GX")를 위한 PLANiT Institute의 정책분석 실험 도구.
+메가프로젝트와 K-GX의 재정 문제를 다루는 PLANiT Institute 연구를 위한 정책분석 실험 도구.
 DEFINE-UK 계열 생태 스톡-플로우 정합(E-SFC) 모형을 연간 축약형으로 구현하고, 전력 원장(Layer 1)·K-GX 재정/정책금융·K-ETS를 같은 회계 안에 붙였다.
 
 > **상태: v0.1 실험판 (2026-10-08).** 모형 선택과 보정은 미확정이다.
@@ -25,7 +25,7 @@ DEFINE-UK 계열 생태 스톡-플로우 정합(E-SFC) 모형을 연간 축약�
 | MFM | World Bank MFMod Technical Description (2019, WP 8965) | 재정 항등식, 테일러 규칙, 하이브리드 필립스(축약), 채무 프리미엄(기본 폐쇄에는 없음 → 스위치) |
 | MFE | Electricity Transition in MFMod (2024, WP 10854) | 전력계획 → 거시 soft-link: capex 수입비중, 연료 수입, 요금 → CPI, 전력자본 이중계상 방지 |
 | GMM | IMF WP/2023/269 Getting to Know GMMET | 재생+백업 구조 → VRE 비중에 볼록한 가스 보강·저장 요구 |
-| L1 | PLANiT Track B Layer-1 ledger (`params.py`) | 부하·믹스·비용·배출·요금 파라미터와 출처 ID(S01…) |
+| L1 | PLANiT Layer-1 ledger (`params.py`) | 부하·믹스·비용·배출·요금 파라미터와 출처 ID(S01…) |
 | KGX | K-GX 전략 국민보고회(2026-10-07) 등 | 재정 200조·기후금융 790조·민간 220조, 녹색국채 2028, 생산세액공제, 지역별 요금 |
 
 ## 구조

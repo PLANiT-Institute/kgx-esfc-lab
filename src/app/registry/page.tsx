@@ -25,7 +25,7 @@ export default function Registry() {
   return (
     <>
       <PageHeader n="05" eyebrow={t("등록부", "Registry")} title={t("파라미터·식 등록부", "Parameter registry")}>
-        {t(`엔진이 쓰는 모든 숫자(${PARAMS.length}개)의 값·범위·단위·등급·출처·계보. 출처 ID(S01…, E01…)는 Track B Layer-1·E-SFC 등록부(params.py, params_esfc.py)와 같다.`, `Every number the engine uses (${PARAMS.length}) with value, range, unit, grade, source and lineage. Source IDs (S01…, E01…) match the Track B Layer-1 and E-SFC registries (params.py, params_esfc.py). Grade A = official statistic, B = literature / derived, C = approximation / assumption.`)}
+        {t(`엔진이 쓰는 모든 숫자(${PARAMS.length}개)의 값·범위·단위·등급·출처·계보. 출처 ID(S01…, E01…)는 PLANiT 내부 Layer-1·E-SFC 등록부(params.py, params_esfc.py)와 같다.`, `Every number the engine uses (${PARAMS.length}) with value, range, unit, grade, source and lineage. Source IDs (S01…, E01…) match PLANiT's internal Layer-1 and E-SFC registries (params.py, params_esfc.py). Grade A = official statistic, B = literature / derived, C = approximation / assumption.`)}
       </PageHeader>
       <div className="cbar">
         <select className="select" value={g} onChange={(e) => setG(e.target.value)}><option value="all">{t("모든 블록", "All blocks")}</option>{Object.keys(GROUPS).map((k) => <option key={k} value={k}>{i.group(k)}</option>)}</select>

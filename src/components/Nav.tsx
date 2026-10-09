@@ -13,7 +13,7 @@ export function Nav() {
   return (
     <header className="topbar">
       <div className="in">
-        <div className="brand"><b>K-GX E-SFC Policy Lab</b><span>{t("PLANiT Institute · Track B 연구용 · v0.1 실험판", "PLANiT Institute · Track B research · v0.1 experimental")}</span></div>
+        <div className="brand"><b>K-GX E-SFC Policy Lab</b><span>{t("PLANiT Institute · 메가프로젝트 × K-GX 재정 연구 · v0.1 실험판", "PLANiT Institute · Megaprojects × K-GX fiscal research · v0.1 experimental")}</span></div>
         <nav className="tabs">
           {links.map(([href, label]) => <Link key={href} href={href} className={path === href ? "on" : ""}>{label}</Link>)}
         </nav>
