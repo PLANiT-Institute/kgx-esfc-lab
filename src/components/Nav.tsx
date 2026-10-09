@@ -7,7 +7,7 @@ export function Nav() {
   const path = usePathname();
   const { t, lang, setLang } = useI18n();
   const links: [string, string][] = [
-    ["/", t("개요", "Overview")], ["/study", t("방법론 스터디", "Methodology")], ["/lab", t("DEFINE-UK E-SFC 실험실", "DEFINE-UK E-SFC Lab")],
+    ["/", t("개요", "Overview")], ["/guide", t("쉽게 이해하기", "In plain words")], ["/study", t("방법론 스터디", "Methodology")], ["/lab", t("DEFINE-UK E-SFC 실험실", "DEFINE-UK E-SFC Lab")],
     ["/alignment", t("전력 × K-GX 정합 (Q1–Q5)", "Power × K-GX (Q1–Q5)")], ["/registry", t("파라미터·식 등록부", "Parameter registry")],
   ];
   return (
